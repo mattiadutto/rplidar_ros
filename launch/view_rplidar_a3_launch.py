@@ -21,7 +21,7 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(
             get_package_share_directory('rplidar_ros2'),
             'rviz',
-            'rplidar_ros2.rviz')
+            'rplidar_slam_scout_mini_ros2.rviz')
 
     return LaunchDescription([
 
