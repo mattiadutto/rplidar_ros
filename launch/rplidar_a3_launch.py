@@ -50,6 +50,10 @@ def generate_launch_description():
             default_value=scan_mode,
             description='Specifying scan mode of lidar'),
 
+        Node(package = "tf2_ros", 
+            executable = "static_transform_publisher",
+            arguments = ["0","0","0","0","0","0", "base_link", "laser"]),
+
         Node(
             package='rplidar_ros2',
             executable='rplidar_scan_publisher',
