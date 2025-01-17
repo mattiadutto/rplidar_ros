@@ -56,9 +56,9 @@ def generate_launch_description():
             default_value=reference_link,
             description='Specifying the reference link of lidar'),
 
-        Node(package = "tf2_ros", 
-            executable = "static_transform_publisher",
-            arguments = ["0","0","0","0","0","0", reference_link, "laser"]),
+        # Node(package = "tf2_ros", 
+        #     executable = "static_transform_publisher",
+        #     arguments = ["0","0","0","0","0","0", reference_link, "laser"]),
 
         Node(
             package='rplidar_ros2',
