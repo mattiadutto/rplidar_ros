@@ -5,19 +5,20 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.actions import LogInfo
-from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    serial_port = LaunchConfiguration('serial_port', default='/dev/ttyUSB0')
-    serial_baudrate = LaunchConfiguration('serial_baudrate', default='256000') #for A3 is 256000
+    angle_compensate = LaunchConfiguration('angle_compensate', default='true')
     frame_id = LaunchConfiguration('frame_id', default='laser')
     inverted = LaunchConfiguration('inverted', default='false')
-    angle_compensate = LaunchConfiguration('angle_compensate', default='true')
-    scan_mode = LaunchConfiguration('scan_mode', default='Sensitivity')
     reference_link = LaunchConfiguration('reference_link', default='base_link') 
+    scan_mode = LaunchConfiguration('scan_mode', default='Sensitivity')
+    serial_baudrate = LaunchConfiguration('serial_baudrate', default='256000') #for A3 is 256000
+    serial_port = LaunchConfiguration('serial_port', default='/dev/ttyUSB0')
+    use_rviz = LaunchConfiguration("use_rviz", default="false")
 
     rviz_config_dir = os.path.join(
             get_package_share_directory('rplidar_ros2'),
@@ -25,16 +26,10 @@ def generate_launch_description():
             'rplidar_slam_scout_mini_ros2.rviz')
 
     return LaunchDescription([
-
         DeclareLaunchArgument(
-            'serial_port',
-            default_value=serial_port,
-            description='Specifying usb port to connected lidar'),
-
-        DeclareLaunchArgument(
-            'serial_baudrate',
-            default_value=serial_baudrate,
-            description='Specifying usb port baudrate to connected lidar'),
+            'angle_compensate',
+            default_value=angle_compensate,
+            description='Specifying whether or not to enable angle_compensate of scan data'),
         
         DeclareLaunchArgument(
             'frame_id',
@@ -47,9 +42,9 @@ def generate_launch_description():
             description='Specifying whether or not to invert scan data'),
 
         DeclareLaunchArgument(
-            'angle_compensate',
-            default_value=angle_compensate,
-            description='Specifying whether or not to enable angle_compensate of scan data'),
+            'reference_link',
+            default_value=reference_link,
+            description='Specifying the reference link of lidar'),
 
         DeclareLaunchArgument(
             'scan_mode',
@@ -57,9 +52,20 @@ def generate_launch_description():
             description='Specifying scan mode of lidar'),
 
         DeclareLaunchArgument(
-            'reference_link',
-            default_value=reference_link,
-            description='Specifying the reference link of lidar'),
+            'serial_baudrate',
+            default_value=serial_baudrate,
+            description='Specifying usb port baudrate to connected lidar'),
+        
+        DeclareLaunchArgument(
+            'serial_port',
+            default_value=serial_port,
+            description='Specifying usb port to connected lidar'),
+
+        DeclareLaunchArgument(
+            "use_rviz",
+            default_value=use_rviz,
+            description="Run rviz if true"
+        ),
 
         Node(package = "tf2_ros", 
             executable = "static_transform_publisher",
@@ -75,13 +81,14 @@ def generate_launch_description():
                          'inverted': inverted, 
                          'angle_compensate': angle_compensate, 
                          'scan_mode': scan_mode}],
-            output='screen'),
+            output='screen'),    
 
         Node(
             package='rviz2',
             executable='rviz2',
             name='rviz2',
             arguments=['-d', rviz_config_dir],
-            output='screen'),
+            output='screen',
+            condition=IfCondition(use_rviz)),
     ])
 
